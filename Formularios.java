@@ -2,8 +2,13 @@ import static java.awt.Color.black;
 import static java.awt.Color.gray;
 import static java.awt.Color.red;
 import static java.awt.Color.white;
+import javax.swing.event.*;
+
 public class Formularios {
     //Atributos
+    private CuadroDeTexto txtNombre, txtPaterno, txtMaterno, txtFechaDeNacimiento;
+    private boolean interruptor;
+    private Boton bEnviarInformacion;
     //Ventana principal
     public void ventanaGeneral(){
         Ventana v1=new Ventana("Ficha de preinscripción",730,510,white,true);
@@ -35,11 +40,11 @@ public class Formularios {
         //Fila 1
         CuadroDeTexto txtCurp=new CuadroDeTexto(posX,2*sepY,tamañoX,tamañoY,gray,true);
         //Fila 2
-        CuadroDeTexto txtNombre=new CuadroDeTexto(posX,4*sepY,tamañoX,tamañoY,gray,true);
-        CuadroDeTexto txtPaterno=new CuadroDeTexto(posX+sepX,4*sepY,tamañoX,tamañoY,gray,true);
-        CuadroDeTexto txtMaterno=new CuadroDeTexto(posX+2*sepX,4*sepY,tamañoX,tamañoY,gray,true);
+        txtNombre=new CuadroDeTexto(posX,4*sepY,tamañoX,tamañoY,gray,true);
+        txtPaterno=new CuadroDeTexto(posX+sepX,4*sepY,tamañoX,tamañoY,gray,true);
+        txtMaterno=new CuadroDeTexto(posX+2*sepX,4*sepY,tamañoX,tamañoY,gray,true);
         //Fila 3
-        CuadroDeTexto txtFechaDeNacimiento=new CuadroDeTexto(posX,6*sepY,tamañoX,tamañoY,gray,true);
+        txtFechaDeNacimiento=new CuadroDeTexto(posX,6*sepY,tamañoX,tamañoY,gray,true);
         //Fila 4
         CuadroDeTexto txtUsuario=new CuadroDeTexto(posX+2*sepX,8*sepY,tamañoX,tamañoY,gray,true);
         //Fila 5
@@ -53,36 +58,10 @@ public class Formularios {
         ListaDespegable listaCarrera=new ListaDespegable(posX+sepX,8*sepY,tamañoX,tamañoY,opciones4);
         //JButton
         Boton bConsultarCurp=new Boton("Consultar",posX+sepX,2*sepY,100,30,gray,black,true);
-        //Condición para desbloquear el botón bEnviarInformación utilizando lo que se encuentra en los cuadros de texto
-        boolean interruptor,letras,numeros,caracteres;
-        //Detector de cadenas con caracteres que no son letras
-//        for (int i = 0; i < 10; i++) {
-//            if (caracteres) {
-//                
-//            }
-//            for (int j = 0; j < 10; j++) {
-//                
-//            }//casos letras
-//        }
-//        //Detector de cadenas con caracteres que no son enteros
-//        for (int i = 0; i < 10; i++) {
-//            for (int j = 0; j < 10; j++) {
-//                
-//            }//Casos enteros
-//        }
-//        for (int i = 0; i < 10; i++) {
-//            for (int j = 0; j < 10; j++) {
-//                
-//            }//Casos de enteros con número de caracteres
-//        }
-//        //if con compuertas AND
-//        if (letras&&numeros&&caracteres) {
-//            interruptor=true;
-//        }else{
-//            interruptor=false;
-//        }//cambiar el booleano del botón bEnviarInformación
-        Boton bEnviarInformacion=new Boton("Enviar Informacion",posX+sepX,11*sepY,200,30,red,white,false);
-        
+        agregarListeners();
+        bEnviarInformacion=new Boton("Enviar Informacion",posX+sepX,11*sepY,200,30,red,white,interruptor);
+        //Aplicar DocumentListener
+
         //Eventos de los botones
         //Botón de consulta
         //Botón de enviar información
@@ -119,6 +98,41 @@ public class Formularios {
         v1.agregaComponentes(bConsultarCurp);
         v1.agregaComponentes(bEnviarInformacion);
     }
+        private void verificarCondiciones(){
+            //Condición para desbloquear el botón bEnviarInformación utilizando lo que se encuentra en los cuadros de texto 
+            String nombre=txtNombre.getText();
+            boolean letras1=nombre.matches("[a-zA-Z]+");
+            String paterno=txtPaterno.getText();
+            boolean letras2=paterno.matches("[a-zA-Z]*");
+            String materno=txtMaterno.getText();
+            boolean letras3=materno.matches("[a-zA-Z]+");
+            String fechaDeNacimiento=txtFechaDeNacimiento.getText();
+            boolean numeros1=fechaDeNacimiento.matches("\\d+");
+
+            interruptor=letras1&&letras2&&letras3&&numeros1;
+            //Cambiar el booleano del botón bEnviarInformación
+            bEnviarInformacion.setEnabled(interruptor);
+        }
+        private void agregarListeners(){
+            DocumentListener listener=new DocumentListener(){
+                @Override
+                public void insertUpdate(DocumentEvent e){
+                    verificarCondiciones();
+                }
+                @Override
+                public void removeUpdate(DocumentEvent e){
+                    verificarCondiciones();
+                }
+                @Override
+                public void changedUpdate(DocumentEvent e){
+                    verificarCondiciones();
+                }
+            };
+            txtNombre.getDocument().addDocumentListener(listener);
+            txtPaterno.getDocument().addDocumentListener(listener);
+            txtMaterno.getDocument().addDocumentListener(listener);
+            txtFechaDeNacimiento.getDocument().addDocumentListener(listener);
+        }
     //Ventana secundaria 1
     public void cuentaInstitucional(){
         Ventana v2=new Ventana("Consulta",500,300,gray,true);
